@@ -9,15 +9,15 @@
 using namespace std;
 
 void process(){
-    int soc = socket(AF_INET,SOCK_DGRAM,0);
+    int soc = socket(AF_INET,SOCK_STREAM,0);
 
     sockaddr_in s_addr;
     sockaddr_in c_addr;
     memset(&s_addr,0,sizeof(sockaddr_in));
 
-    s_addr.sin_family=PF_INET;
+    s_addr.sin_family=AF_INET;
     s_addr.sin_addr.s_addr=htonl(INADDR_ANY);
-    s_addr.sin_port=htons(1234);
+    s_addr.sin_port=htons(8080);
 
     bind(soc,(sockaddr*)&s_addr,sizeof(s_addr));
 
@@ -26,7 +26,7 @@ void process(){
     int c_fd=accept(soc,(sockaddr*)(&c_addr),&c_len);
 
     if(c_fd==-1) cerr<<"accept wrong"<<endl;
-
+    for(int i=0;i<3;i++) cout<<i<<endl;
     char buf[1000];
     while(1){
         if(recv(c_fd,buf,1000,0)==-1) cerr<<"wrong recv"<<endl;
@@ -36,7 +36,6 @@ void process(){
 }
 
 int main(){
-
     thread  works[8];
 
     for(int i=0;i<8;i++) works[i]=thread(process);

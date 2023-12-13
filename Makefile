@@ -1,4 +1,4 @@
-srv:
+ser:
 	${make}g++ -o a.out serv/main.cpp
 	${make}./a.out
 

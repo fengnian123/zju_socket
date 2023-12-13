@@ -173,7 +173,7 @@ int main()
         cout<<"waiting for connect"<<endl;
         int clnt_sock = accept(serv_sock, (struct sockaddr *)&clnt_addr, &clnt_addr_size);
         // clnt_sock用于跟客户端通信
-
+        cout<<1<<endl;
         sock_addr_port clnt;
         clnt.sock = clnt_sock;
         clnt.addr = inet_ntoa(clnt_addr.sin_addr);
