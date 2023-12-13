@@ -141,16 +141,16 @@ private:
         }
 
         char ip[MAX_SIZE];
-        // printf("Please enter server ip:");
-        // scanf("%s", ip);
+         printf("Please enter server ip:");
+         scanf("%s", ip);
 
         server_addr.sin_family = AF_INET;
         server_addr.sin_port = htons(3302);
-        server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+        server_addr.sin_addr.s_addr = inet_addr(ip);
 
         if (connect(sockfd, (sockaddr *)&server_addr, sizeof(server_addr)) < 0)
         {
-            printf("[Error] Connect fail, error: %s\n", strerror(errno));
+            printf("[Error] 111Connect fail, error: %s\n", strerror(errno));
             return;
         }
 
