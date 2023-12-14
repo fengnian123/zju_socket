@@ -80,10 +80,10 @@ void process(int cli_fd){
                         break;
                 }
             }
-            lock.unlock();
             buf[0]='#';
             send(it->cl_fd,buf,1000,0);
             recv(it->cl_fd,buf,1000,0);
+            cout<<buf<<endl;
             if(buf[0]=='*'||it==cli.end()){
                 buf[0]='*';
                 send(cli_fd,buf,1000,0);
@@ -96,9 +96,16 @@ void process(int cli_fd){
                     cout<<"用户发来消息：\n"<<buf<<endl;
                     if(buf[0]=='0') break;
                     send(it->cl_fd,buf,1000,0);
+
+                    memset(buf,0,1000);
+                    if(recv(it->cl_fd,buf,1000,0)==-1) break;;
+                    cout<<"用户发来消息：\n"<<buf<<endl;
+                    if(buf[0]=='0') break;
+                    send(cli_fd,buf,1000,0);
                 }
             }
             memset(buf,0,1000);
+            lock.unlock();
         }
         if(buf[0]=='5' || buf[0]=='6'){
             mutex lock;

@@ -6,6 +6,35 @@
 #include<iostream>
 using namespace std;
 
+void rec_message(int stream){
+    cout<<"有人申请与你通话，输入序号进行选择：\n1. 同意通话\n2. 拒绝通话"<<endl;
+    int c;
+    cin>>c;
+    char buf[1000];
+    if(c==1) {
+        char* s="yes";
+        send(stream,s,3,0);
+        string mes;
+        while(1){
+            cout<<"请输入消息(退出发送消息请输入0)："<<endl;
+            cin>>mes;
+            if(mes[0]=='0'){
+                buf[0]='0';
+                send(stream,buf,1000,0);
+                cout<<"已退出"<<endl;
+                break;
+            }
+            s=(char*)mes.c_str();
+            send(stream,s,mes.size(),0);
+            recv(stream,buf,1000,0);
+            cout<<buf<<endl;
+        }
+    }
+    else{
+        buf[0]='*';
+        send(stream,buf,1,0);
+    }
+}
 int main(){
 new_pro:
     cout<<"功能菜单："<<endl;
@@ -48,9 +77,7 @@ new_pro:
                 buf[0]='1';
                 send(stream,buf,1,0);
                 recv(stream,buf,1000,0);
-                if(buf[0]=='#'){
-
-                }
+                if(buf[0]=='#') rec_message(stream);
                 cout<<buf<<endl;
                 }
             }
@@ -60,6 +87,7 @@ new_pro:
                 buf[0]='2';
                 send(stream,buf,1,0);
                 recv(stream,buf,1000,0);
+                if(buf[0]=='#') rec_message(stream);
                 cout<<buf<<endl;
             }
             if(cho_1==3){
@@ -67,6 +95,7 @@ new_pro:
                 buf[0]='3';
                 send(stream,buf,1,0);
                 recv(stream,buf,1000,0);
+                if(buf[0]=='#') rec_message(stream);
                 cout<<buf<<endl;
             }
             if(cho_1==4){
@@ -83,6 +112,7 @@ new_pro:
                 send(stream,buf,1000,0);
                 memset(buf,0,1000);
                 recv(stream,buf,1000,0);
+                if(buf[0]=='#') rec_message(stream);
                 if(buf[0]=='*'){
                     cout<<"用户拒绝与你聊天"<<endl;
                 }
@@ -103,7 +133,8 @@ new_pro:
                         //memcpy(buf,&b,sizeof(b));
                         cout<<b<<endl;
                         send(stream,b,s1.size(),0);
-                        
+                        recv(stream,buf,1000,0);
+                        cout<<buf<<endl;
                     }
                 }
             }
