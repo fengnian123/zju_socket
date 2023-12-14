@@ -58,7 +58,6 @@ new_pro:
                 cout<<buf<<endl;
             }
             if(cho_1==3){
-                cout<<3<<endl;
                 memset(buf,0,1000);
                 buf[0]='3';
                 send(stream,buf,1,0);
