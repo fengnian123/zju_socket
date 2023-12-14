@@ -5,9 +5,6 @@
 #include<netdb.h>
 #include<iostream>
 using namespace std;
-struct packet{
-
-};
 
 int main(){
 new_pro:
@@ -44,21 +41,24 @@ new_pro:
         char buf[1000];
         while(1){
             cin>>cho_1;
-            if(cho_1==1){cout<<1<<endl;
+            if(cho_1==1){
+                cout<<"时间如下："<<endl;
                 memset(buf,0,1000);
                 buf[0]='1';
                 send(stream,buf,1,0);
                 recv(stream,buf,1000,0);
                 cout<<buf<<endl;
             }
-            if(cho_1==2){cout<<2<<endl;
+            if(cho_1==2){
+                cout<<"主机名称如下："<<endl;
                 memset(buf,0,1000);
                 buf[0]='2';
                 send(stream,buf,1,0);
                 recv(stream,buf,1000,0);
                 cout<<buf<<endl;
             }
-            if(cho_1==3){cout<<3<<endl;
+            if(cho_1==3){
+                cout<<3<<endl;
                 memset(buf,0,1000);
                 buf[0]='3';
                 send(stream,buf,1,0);
@@ -79,10 +79,11 @@ new_pro:
                 send(stream,buf,1000,0);
                 char* b;
                 while(1){
-                    cout<<"请输入消息(退出发送消息请输入0)：\n"<<endl;
+                    cout<<"请输入消息(退出发送消息请输入0)："<<endl;
                     cin>>s1;
                     memset(buf,0,1000);
                     if(s1[0]=='0') {
+                        buf[0]='0';
                         send(stream,buf,1000,0);
                         cout<<"已退出"<<endl;
                         break;
@@ -92,7 +93,6 @@ new_pro:
                     cout<<b<<endl;
                     send(stream,b,s1.size(),0);
                     //recv(stream,buf,1000,0);
-                    cout<<buf<<endl;
                 }
             }
             if(cho_1==5){

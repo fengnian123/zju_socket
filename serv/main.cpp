@@ -22,27 +22,30 @@ void process(int cli_fd){
     if(cli_fd==-1) cerr<<"accept wrong"<<endl;
 
     char buf[1000];
-   // cout<<33<<endl;
     while(1){
         // cout<<"1.获取时间"<<endl<<"2.获取名字"<<endl<<"3.获取客户端列表"<<endl
         // <<"4.发送消息"<<endl<<"5.断开连接"<<endl<<"6.退出"<<endl<<"请输入序号选择功能"<<endl;
         memset(buf,0,1000);
         if(recv(cli_fd,buf,1000,0)==-1) cerr<<"wrong recv"<<endl;
-        if(buf[0]=='1'){cout<<5<<endl;
+        if(buf[0]=='1'){
             memset(buf,0,1000);
             time_t currentTime = time(nullptr);
             std::strftime(buf, 80, "%Y-%m-%d %H:%M:%S", localtime(&currentTime));
+            cout<<"用户请求时间："<<endl<<buf<<endl;
             send(cli_fd,buf,1000,0);
             memset(buf,0,1000);
         }
         if(buf[0]=='2'){
             memset(buf,0,1000);
             gethostname(buf,80);
+            cout<<"用户请求服务器名称："<<endl;
+            cout<<buf<<endl;
             send(cli_fd,buf,1000,0);
             memset(buf,0,1000);
         }
         if(buf[0]=='3'){
             memset(buf,0,1000);
+            cout<<"用户请求客户端列表："<<endl;
             string s="客户端列表如下：\n";
             // mutex lock;
             // lock.lock();
@@ -54,14 +57,15 @@ void process(int cli_fd){
             }
             temp=(char*)s.c_str();
             memcpy(buf,temp,1000);
-            //cout<<s<<endl;
+            cout<<s;
             send(cli_fd,buf,1000,0);
             //lock.unlock();
             memset(buf,0,1000);
 
         }
         if(buf[0]=='4'){
-            memset(buf,0,1000);cout<<8<<endl;
+            cout<<"用户请求发消息"<<endl;
+            memset(buf,0,1000);
             recv(cli_fd,buf,1000,0);
             string s(buf);
             mutex lock;
@@ -79,7 +83,7 @@ void process(int cli_fd){
                 
                 memset(buf,0,1000);
                 recv(cli_fd,buf,1000,0);
-                cout<<buf<<endl;
+                cout<<"用户发来消息：\n"<<buf<<endl;
                 if(buf[0]=='0') break;
                 //send(it->cl_fd,buf,1000,0);
             }
@@ -87,7 +91,6 @@ void process(int cli_fd){
         }
         if(buf[0]=='5' || buf[0]=='6'){
             mutex lock;
-            cout<<22<<endl;
             lock.lock();
             for(auto i=cli.begin();i!=cli.end();i++){
                 if(i->cl_fd==cli_fd){
@@ -97,6 +100,7 @@ void process(int cli_fd){
             }  
             lock.unlock();
             close(cli_fd);
+            break;
         }
     }
     return;
@@ -119,7 +123,7 @@ int main(){
     socklen_t c_len=sizeof(sockaddr_in);
     thread work[8];
     int i=0;
-    while(1){//cout<<'q'<<endl;
+    while(1){
         int c_fd=accept(soc,(sockaddr*)(&c_addr),&c_len);
         if(c_fd==-1) cout<<"ac wrong\n";
         
@@ -127,7 +131,7 @@ int main(){
         cl.ip=c_addr.sin_addr;
         cl.port=c_addr.sin_port;
         cl.cl_fd=c_fd;
-        cli.push_back(cl);//cout<<"cc"<<endl;
+        cli.push_back(cl);
         work[i++]=thread(process,c_fd);
 
     }
