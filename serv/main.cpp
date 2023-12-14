@@ -28,12 +28,14 @@ void process(int cli_fd){
         memset(buf,0,1000);
         if(recv(cli_fd,buf,1000,0)==-1) cerr<<"wrong recv"<<endl;
         if(buf[0]=='1'){
+            
             memset(buf,0,1000);
             time_t currentTime = time(nullptr);
             std::strftime(buf, 80, "%Y-%m-%d %H:%M:%S", localtime(&currentTime));
             cout<<"用户请求时间："<<endl<<buf<<endl;
             send(cli_fd,buf,1000,0);
             memset(buf,0,1000);
+            
         }
         if(buf[0]=='2'){
             memset(buf,0,1000);
@@ -70,7 +72,7 @@ void process(int cli_fd){
             string s(buf);
             mutex lock;
             lock.lock();
-            auto it=cli.begin();
+            auto it=cli.end();
             for(auto i=cli.begin();i!=cli.end();i++){
                 if(inet_addr(s.substr(0,s.find_first_of('/')).c_str())==i->ip.s_addr && 
                         i->port==stoi(s.substr(s.find_first_of('/')+1,s.find_first_of('0')-s.find_first_of('/')-1))){
@@ -79,13 +81,22 @@ void process(int cli_fd){
                 }
             }
             lock.unlock();
-            while(1){
-                
-                memset(buf,0,1000);
-                recv(cli_fd,buf,1000,0);
-                cout<<"用户发来消息：\n"<<buf<<endl;
-                if(buf[0]=='0') break;
-                //send(it->cl_fd,buf,1000,0);
+            buf[0]='#';
+            send(it->cl_fd,buf,1000,0);
+            recv(it->cl_fd,buf,1000,0);
+            if(buf[0]=='*'||it==cli.end()){
+                buf[0]='*';
+                send(cli_fd,buf,1000,0);
+            }
+            else{
+                while(1){
+                    
+                    memset(buf,0,1000);
+                    if(recv(cli_fd,buf,1000,0)==-1) break;;
+                    cout<<"用户发来消息：\n"<<buf<<endl;
+                    if(buf[0]=='0') break;
+                    send(it->cl_fd,buf,1000,0);
+                }
             }
             memset(buf,0,1000);
         }
@@ -123,6 +134,7 @@ int main(){
     socklen_t c_len=sizeof(sockaddr_in);
     thread work[8];
     int i=0;
+    cout<<"服务器已启动"<<endl;
     while(1){
         int c_fd=accept(soc,(sockaddr*)(&c_addr),&c_len);
         if(c_fd==-1) cout<<"ac wrong\n";
@@ -132,6 +144,7 @@ int main(){
         cl.port=c_addr.sin_port;
         cl.cl_fd=c_fd;
         cli.push_back(cl);
+        cout<<"添加客户端，ip: "<<inet_ntoa(c_addr.sin_addr)<<" 端口: "<<c_addr.sin_port<<endl;
         work[i++]=thread(process,c_fd);
 
     }
