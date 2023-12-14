@@ -1,7 +1,7 @@
 ser:
-	${make}g++ -o a.out serv/main.cpp
-	${make}./a.out
+	${make}g++ -o serv/server.out serv/main.cpp
+	${make}./serv/server.out
 
 cli:
-	${make}g++ -o a.out client/main.cpp
-	${make}./a.out
+	${make}g++ -o client/client.out client/main.cpp
+	${make}./client/client.out
