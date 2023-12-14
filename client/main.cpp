@@ -26,11 +26,11 @@ new_pro:
         cout<<"请输入服务器端口："<<endl;
         string port_str;
         cin>>port_str;
-        //link begin    ip_str.c_str()stoi(port_str)
-        ser_addr.sin_port=htons(3302);
+        //link begin    
+        ser_addr.sin_port=htons(3302);//stoi(port_str)
 
         //inet_aton ("127.0.0.1",&ser_addr.sin_addr);
-         ser_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+         ser_addr.sin_addr.s_addr = inet_addr("127.0.0.1");//ip_str.c_str()
         if(connect(stream,(struct sockaddr *)&ser_addr,sizeof(sockaddr))==-1)  cerr<<"wrong connect"<<endl;
 
         cout<<"连接成功！"<<endl<<endl<<"功能菜单："<<endl;
