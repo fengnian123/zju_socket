@@ -11,23 +11,23 @@
 #include<iostream>
 using namespace std;
 
-struct clients{
+struct clients{//store ip address and port
     in_addr ip;
     in_port_t port;
-    int cl_fd;
+    int cl_fd; //socket_fd
 };
 vector<clients> cli;
 
 void process(int cli_fd){
-    if(cli_fd==-1) cerr<<"accept wrong"<<endl;
+    if(cli_fd==-1) cerr<<"accept wrong"<<endl; //if socket_fd==-1,it is invalid, return
 
-    char buf[1000];
+    char buf[1000]; //data buffer
     while(1){
         // cout<<"1.获取时间"<<endl<<"2.获取名字"<<endl<<"3.获取客户端列表"<<endl
         // <<"4.发送消息"<<endl<<"5.断开连接"<<endl<<"6.退出"<<endl<<"请输入序号选择功能"<<endl;
         memset(buf,0,1000);
-        if(recv(cli_fd,buf,1000,0)==-1) cerr<<"wrong recv"<<endl;
-        if(buf[0]=='1'){
+        if(recv(cli_fd,buf,1000,0)==-1) cerr<<"wrong recv"<<endl; //bad receive results
+        if(buf[0]=='1'){ //client sends time requirements
             
             memset(buf,0,1000);
             time_t currentTime = time(nullptr);
