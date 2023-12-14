@@ -10,7 +10,7 @@ struct packet{
 };
 
 int main(){
-
+new_pro:
     cout<<"功能菜单："<<endl;
     cout<<"1.连接"<<endl<<"2.退出"<<endl<<"请输入序号选择功能"<<endl;
     int cho_0;
@@ -44,27 +44,66 @@ int main(){
         char buf[1000];
         while(1){
             cin>>cho_1;
-            if(cho_1==1){
-                buf[0]='122';
+            if(cho_1==1){cout<<1<<endl;
+                memset(buf,0,1000);
+                buf[0]='1';
                 send(stream,buf,1,0);
+                recv(stream,buf,1000,0);
+                cout<<buf<<endl;
             }
-            if(cho_1==2){
+            if(cho_1==2){cout<<2<<endl;
+                memset(buf,0,1000);
                 buf[0]='2';
                 send(stream,buf,1,0);
+                recv(stream,buf,1000,0);
+                cout<<buf<<endl;
             }
-            if(cho_1==3){
+            if(cho_1==3){cout<<3<<endl;
+                memset(buf,0,1000);
                 buf[0]='3';
                 send(stream,buf,1,0);
+                recv(stream,buf,1000,0);
+                cout<<buf<<endl;
             }
             if(cho_1==4){
-                cout<<"Input:"<<endl;
-                cin>>port_str;
-                send(stream,&port_str,port_str.size(),0);
+                buf[0]='4';
+                send(stream,buf,1,0);
+                string s1;
+                int s2;
+                cout<<"请输入目的ip：\n"<<endl;
+                cin>>s1;
+                cout<<"请输入目的端口：\n"<<endl;
+                cin>>s2;
+                char * s=(char*)((s1+'/'+to_string(s2)).c_str());
+                memcpy(buf,s,1000);
+                send(stream,buf,1000,0);
+                char* b;
+                while(1){
+                    cout<<"请输入消息(退出发送消息请输入0)：\n"<<endl;
+                    cin>>s1;
+                    memset(buf,0,1000);
+                    if(s1[0]=='0') {
+                        send(stream,buf,1000,0);
+                        cout<<"已退出"<<endl;
+                        break;
+                    }
+                    b=(char*)s1.c_str();
+                    memcpy(buf,&b,sizeof(b));
+                    cout<<b<<endl;
+                    send(stream,b,s1.size(),0);
+                    //recv(stream,buf,1000,0);
+                    cout<<buf<<endl;
+                }
             }
             if(cho_1==5){
+                memset(buf,0,1000);
+                buf[0]='5';
                 send(stream,buf,1,0);
+                goto new_pro;
             }
             if(cho_1==6){
+                buf[0]='6';
+                send(stream,buf,1,0);
                 return 0;
             } 
             
