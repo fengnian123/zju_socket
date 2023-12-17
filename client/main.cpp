@@ -1,157 +1,196 @@
-#include<sys/socket.h>
-#include<netinet/in.h>
-#include<sys/un.h>
-#include<arpa/inet.h>
-#include<netdb.h>
-#include<iostream>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <sys/un.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <iostream>
 using namespace std;
 
-void rec_message(int stream){
-    cout<<"有人申请与你通话，输入序号进行选择：\n1. 同意通话\n2. 拒绝通话"<<endl;
+// Function to receive and process messages from the connected client
+void rec_message(int stream) {
+    cout << "Someone is requesting a call. Input a number to choose an option:\n1. Accept the call\n2. Reject the call" << endl;
+    // Read user's choice
     int c;
-    cin>>c;
+    cin >> c;
     char buf[1000];
-    if(c==1) {
-        char* s="yes";
-        send(stream,s,3,0);
+    if (c == 1) {
+        const char* s = "yes";
+        // Send the response "yes" to accept the call
+        send(stream, s, 3, 0);
         string mes;
-        while(1){
-            cout<<"请输入消息(退出发送消息请输入0)："<<endl;
-            cin>>mes;
-            if(mes[0]=='0'){
-                buf[0]='0';
-                send(stream,buf,1000,0);
-                cout<<"已退出"<<endl;
+        while (1) {
+            cout << "Enter a message (enter 0 to quit sending messages): ";
+            // Read the user's message input
+            cin >> mes;
+            if (mes[0] == '0') {
+                // If the user entered '0', send a termination signal and exit
+                buf[0] = '0';
+                send(stream, buf, 1000, 0);
+                cout << "You have exited." << endl;
                 break;
             }
-            s=(char*)mes.c_str();
-            send(stream,s,mes.size(),0);
-            recv(stream,buf,1000,0);
-            cout<<buf<<endl;
+            // Convert the message string to a C-style string
+            s = (char*)mes.c_str();
+            // Send the message to the connected client
+            send(stream, s, mes.size(), 0);
+            // Receive the response from the connected client
+            recv(stream, buf, 1000, 0);
+            // Print the received response
+            cout << buf << endl;
         }
-    }
-    else{
-        buf[0]='*';
-        send(stream,buf,1,0);
+    } else {
+        // If the user chose option 2, send a rejection signal to the connected client
+        buf[0] = '*';
+        send(stream, buf, 1, 0);
     }
 }
-int main(){
+
+
+int main() {
 new_pro:
-    cout<<"功能菜单："<<endl;
-    cout<<"1.连接"<<endl<<"2.退出"<<endl<<"请输入序号选择功能"<<endl;
+    // Display menu options
+    cout << "Function menu:" << endl;
+    cout << "1. Connect" << endl << "2. Quit" << endl << "Enter a number to choose an option: ";
+    // Input the choice
     int cho_0;
-    cin>>cho_0;
+    cin >> cho_0;
     sockaddr_in ser_addr;
-    
-    memset(&ser_addr,0,sizeof(sockaddr_in));
-    if(cho_0==1){
-        int stream=socket(AF_INET,SOCK_STREAM,0);
-        if(stream==-1) cerr<<"wrong stream"<<endl;
-        ser_addr.sin_family=AF_INET;
-        
-        cout<<"请输入服务器IP地址:"<<endl;
+    memset(&ser_addr, 0, sizeof(sockaddr_in));
+    if (cho_0 == 1) {
+        // Create a new socket
+        int stream = socket(AF_INET, SOCK_STREAM, 0);
+        if (stream == -1) cerr << "Incorrect stream" << endl;
+        ser_addr.sin_family = AF_INET;
+        cout << "Enter the server IP address: ";
         string ip_str;
-        cin>>ip_str;
-        cout<<"请输入服务器端口："<<endl;
+        cin >> ip_str;
+        cout << "Enter the server port: ";
         string port_str;
-        cin>>port_str;
-        //link begin    
-        ser_addr.sin_port=htons(3302);//stoi(port_str)
-
-        //inet_aton ("127.0.0.1",&ser_addr.sin_addr);
-         ser_addr.sin_addr.s_addr = inet_addr("127.0.0.1");//ip_str.c_str()
-        if(connect(stream,(struct sockaddr *)&ser_addr,sizeof(sockaddr))==-1)  cerr<<"wrong connect"<<endl;
-
-        cout<<"连接成功！"<<endl<<endl<<"功能菜单："<<endl;
-        cout<<"1.获取时间"<<endl<<"2.获取名字"<<endl<<"3.获取客户端列表"<<endl
-        <<"4.发送消息"<<endl<<"5.断开连接"<<endl<<"6.退出"<<endl<<"请输入序号选择功能"<<endl;
-
+        cin >> port_str;
+        // Set up server address structure
+        ser_addr.sin_port = htons(stoi(port_str));
+        ser_addr.sin_addr.s_addr = inet_addr(ip_str.c_str());
+        // Connect to the server
+        if (connect(stream, (struct sockaddr*)&ser_addr, sizeof(sockaddr)) == -1) cerr << "Failed to connect" << endl;
+        // Display the menu options on successful connection
+        cout << "Connection successful!" << endl << endl << "Function menu:" << endl;
+        cout << "1. Get time" << endl << "2. Get name" << endl << "3. Get client list" << endl
+            << "4. Send message" << endl << "5. Disconnect" << endl << "6. Quit" << endl << "Enter a number to choose an option: ";
         int cho_1;
         char buf[1000];
-        while(1){
-            cin>>cho_1;
-            if(cho_1==1){
-                for(int i=0;i<100;i++){
-                cout<<"时间如下："<<endl;
-                memset(buf,0,1000);
-                buf[0]='1';
-                send(stream,buf,1,0);
-                recv(stream,buf,1000,0);
-                if(buf[0]=='#') rec_message(stream);
-                cout<<buf<<endl;
-                }
-            }
-            if(cho_1==2){
-                cout<<"主机名称如下："<<endl;
-                memset(buf,0,1000);
-                buf[0]='2';
-                send(stream,buf,1,0);
-                recv(stream,buf,1000,0);
-                if(buf[0]=='#') rec_message(stream);
-                cout<<buf<<endl;
-            }
-            if(cho_1==3){
-                memset(buf,0,1000);
-                buf[0]='3';
-                send(stream,buf,1,0);
-                recv(stream,buf,1000,0);
-                if(buf[0]=='#') rec_message(stream);
-                cout<<buf<<endl;
-            }
-            if(cho_1==4){
-                buf[0]='4';
-                send(stream,buf,1,0);
-                string s1;
-                int s2;
-                cout<<"请输入目的ip：\n"<<endl;
-                cin>>s1;
-                cout<<"请输入目的端口：\n"<<endl;
-                cin>>s2;
-                char * s=(char*)((s1+'/'+to_string(s2)).c_str());
-                memcpy(buf,s,1000);
-                send(stream,buf,1000,0);
-                memset(buf,0,1000);
-                recv(stream,buf,1000,0);
-                if(buf[0]=='#') rec_message(stream);
-                if(buf[0]=='*'){
-                    cout<<"用户拒绝与你聊天"<<endl;
-                }
-                else{
-                    char* b;
-                    while(1){
-                        cout<<"请输入消息(退出发送消息请输入0)："<<endl;
-                        cin>>s1;
-                        memset(buf,0,1000);
-                        if(s1[0]=='0') {
-                            buf[0]='0';
-                            send(stream,buf,1000,0);
-                            cout<<"已退出"<<endl;
-                            break;
-                        }
-                    
-                        b=(char*)s1.c_str();
-                        //memcpy(buf,&b,sizeof(b));
-                        cout<<b<<endl;
-                        send(stream,b,s1.size(),0);
-                        recv(stream,buf,1000,0);
-                        cout<<buf<<endl;
-                    }
-                }
-            }
-            if(cho_1==5){
-                memset(buf,0,1000);
-                buf[0]='5';
-                send(stream,buf,1,0);
-                goto new_pro;
-            }
-            if(cho_1==6){
-                buf[0]='6';
-                send(stream,buf,1,0);
-                return 0;
-            } 
-            
+        while (1) {
+    cin >> cho_1;
+    if (cho_1 == 1) {
+        for (int i = 0; i < 100; i++) {
+            cout << "The time is: " << endl;
+            // Clear the buffer
+            memset(buf, 0, 1000);
+            // Set the message type to '1' to request the server's time
+            buf[0] = '1';
+            // Send the request to the server
+            send(stream, buf, 1, 0);
+            // Receive the response from the server
+            recv(stream, buf, 1000, 0);
+            // Check if the server wants to initiate a call ('#')
+            if (buf[0] == '#') rec_message(stream);
+            // Print the received response (time)
+            cout << buf << endl;
         }
-    }
+    } else if (cho_1 == 2) {
+        cout << "The host name is: " << endl;
+        // Clear the buffer
+        memset(buf, 0, 1000);
+        // Set the message type to '2' to request the server's hostname
+        buf[0] = '2';
+        // Send the request to the server
+        send(stream, buf, 1, 0);
+        // Receive the response from the server
+        recv(stream, buf, 1000, 0);
+        // Check if the server wants to initiate a call ('#')
+        if (buf[0] == '#') rec_message(stream);
+        // Print the received response (hostname)
+        cout << buf << endl;
+    } else if (cho_1 == 3) {
+        // Clear the buffer
+        memset(buf, 0, 1000);
+        // Set the message type to '3' to request the list of connected clients
+        buf[0] = '3';
+        // Send the request to the server
+        send(stream, buf, 1, 0);
+        // Receive the response from the server
+        recv(stream, buf, 1000, 0);
+        // Check if the server wants to initiate a call ('#')
+        if (buf[0] == '#') rec_message(stream);
+        // Print the received response (client list)
+        cout << buf << endl;
+    } else if (cho_1 == 4) {
+        // Set the message type to '4' to indicate sending a message
+        buf[0] = '4';
+        // Send the request to the server
+        send(stream, buf, 1, 0);
+        string s1;
+        int s2;
+        cout << "Enter the destination IP: " << endl;
+        cin >> s1;
+        cout << "Enter the destination port: " << endl;
+        cin >> s2;
+        // Create the message in the format "<destination IP>/<destination port>"
+        char* s = (char*)((s1 + '/' + to_string(s2)).c_str());
+        // Copy the constructed message to the buffer
+        memcpy(buf, s, 1000);
+        // Send the message to the server
+        send(stream, buf, 1000, 0);
+        // Clear the buffer
+        memset(buf, 0, 1000);
+        // Receive the response from the server
+        recv(stream, buf, 1000, 0);
+        // Check if the server wants to initiate a call ('#')
+        if (buf[0] == '#') rec_message(stream);
+        // Check if the server rejected the call ('*')
+        if (buf[0] == '*') {
+            cout << "User rejected talking to you" << endl;
+        } else {
+            char* b;
+            while (1) {
+                cout << "Enter a message (enter 0 to quit sending messages): ";
+                cin >> s1;
+                memset(buf, 0, 1000);
+                if (s1[0] == '0') {
+                    // If the user entered '0', send a termination signal and exit
+                    buf[0] = '0';
+                    send(stream, buf, 1000, 0);
+                    cout << "You have exited." << endl;
+                    break;
+                }
+                // Convert the message string to a C-style string
+                b = (char*)s1.c_str();
+                // Send the message to the server
+                send(stream, b, s1.size(), 0);
+                // Receive the response from the server
+                recv(stream, buf, 1000, 0);
+                // Print the received response
+                cout << buf << endl;
+            }
+        }
+    } else if (cho_1 == 5) {
+        // Clear the buffer
+        memset(buf, 0, 1000);
+        // Set the message type to '5' to indicate disconnection
+        buf[0] = '5';
+        // Send the request to the server
+        send(stream, buf, 1, 0);
+        // Go back to the beginning of the program
+        goto new_pro;
+    } else if (cho_1 == 6) {
+        // Clear the buffer
+        memset(buf, 0, 1000);
+        // Set the message type to '6' to indicate quitting
+        buf[0] = '6';
+        // Send the request to the server
+        send(stream, buf, 1, 0);
+        // Exit the program
+        return 0;
+    }  
+}
 
-    if(cho_0==2) return 0;
 }
