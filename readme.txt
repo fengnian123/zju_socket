@@ -1,0 +1,2 @@
+The client function main.cpp and the generated executable file main.out are stored in the client folder. You can run main.out directly in the linux environment
+The server main function main.cpp and the generated executable file mainserver.out are stored in the serv folder. You can run main.out directly in the linux environment
